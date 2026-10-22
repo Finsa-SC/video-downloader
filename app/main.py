@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from app.routes import download, info
 
 app = FastAPI(
@@ -18,6 +17,3 @@ app.include_router(
     prefix="/api",
     tags=["Download"],
 )
-
-# harus paling bawah, setelah include_router
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
