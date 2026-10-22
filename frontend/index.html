@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FinSky Downloader</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <a class="brand" href="#top">
+      <img class="brand-icon" src="assets/favicon.png" alt="">
+      <span class="brand-title">FinSky Downloader</span>
+      <img class="brand-dance" src="assets/dancing-acute.gif" alt="">
+    </a>
+  </header>
+
+  <main id="top">
+
+    <!-- URL input -->
+    <section class="hero">
+      <h1>Paste a link, download the video</h1>
+      <p class="hero-sub">Enter a video link, check its info, then pick the format you want.</p>
+
+      <div class="url-area">
+        <img class="greeting" src="assets/greeting-acute.gif" alt="">
+        <form id="url-form" class="url-form" novalidate>
+          <label class="sr-only" for="url-input">Video link</label>
+          <input id="url-input" type="url" name="url" placeholder="https://..." autocomplete="off" required>
+          <button id="check-btn" type="submit" class="btn btn-primary">
+            <span class="btn-label">Check video</span>
+          </button>
+        </form>
+      </div>
+      <p id="info-error" class="message message-error" role="alert" hidden></p>
+    </section>
+
+    <!-- Result -->
+    <div id="result" class="result" hidden>
+
+      <!-- Video info: thumbnail + title only -->
+      <article class="card video-info" aria-label="Video info">
+        <img id="video-thumb" class="video-thumb" alt="Video thumbnail">
+        <div class="video-meta">
+          <h2 id="video-title" class="video-title"></h2>
+          <p id="video-duration" class="video-duration"></p>
+        </div>
+      </article>
+
+      <!-- Download options, separate from the info above -->
+      <section class="card download-panel" aria-labelledby="download-heading">
+        <h2 id="download-heading">Download options</h2>
+
+        <fieldset class="field">
+          <legend>Choose format</legend>
+          <div class="mode-group">
+            <label class="mode-option">
+              <input type="radio" name="mode" value="video" checked>
+              <span class="mode-card">
+                <strong>Video</strong>
+                <small>Picture + audio</small>
+              </span>
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="mode" value="video_only">
+              <span class="mode-card">
+                <strong>Video only</strong>
+                <small>No audio</small>
+              </span>
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="mode" value="audio_only">
+              <span class="mode-card">
+                <strong>Audio only</strong>
+                <small>Sound only (MP3)</small>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset id="resolution-field" class="field">
+          <legend>Choose quality</legend>
+          <div id="resolution-list" class="resolution-list"></div>
+        </fieldset>
+
+        <button id="download-btn" type="button" class="btn btn-download">
+          <span class="btn-label">Download</span>
+        </button>
+        <p id="download-status" class="message" role="status" hidden></p>
+      </section>
+    </div>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
