@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from app.routes.download import router as download_router
+from app.routes import download, info
 
 app = FastAPI(
     title="Video Downloader API",
@@ -8,7 +8,13 @@ app = FastAPI(
 )
 
 app.include_router(
-    download_router,
+    info.router,
+    prefix="/api",
+    tags=["Media Info"],
+)
+
+app.include_router(
+    download.router,
     prefix="/api",
     tags=["Download"],
 )

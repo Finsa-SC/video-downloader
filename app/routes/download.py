@@ -1,3 +1,4 @@
+
 import mimetypes
 import shutil
 import tempfile
@@ -9,6 +10,9 @@ from pydantic import BaseModel, Field, HttpUrl
 from starlette.responses import FileResponse
 
 from app.services import Downloader
+from app.services.image_downloader import download_image
+from app.services.image_processor import process_image
+from app.services.media_detector import detect_media
 
 router = APIRouter()
 
@@ -22,43 +26,76 @@ class CleanupFileResponse(FileResponse):
         try:
             await super().__call__(scope, receive, send)
         finally:
-            # Keep run if sending failed or canceled
             shutil.rmtree(self.cleanup_dir, ignore_errors=True)
 
 
 class DownloadRequest(BaseModel):
     url: HttpUrl
-    mode: Literal["video", "video_only", "audio_only"]
+    mode: Literal[
+        "original", "video", "video_only", "audio_only"
+    ] = "original"
     resolution: int | None = Field(default=None, gt=0)
-
-
-@router.get("/info")
-def get_video_info(url: HttpUrl):
-    try:
-        downloader = Downloader(str(url), output_dir=".")
-        return downloader.get_video_info()
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve video information.",
-        ) from exc
+    remove_bg: bool = False
+    enhance: bool = False
 
 
 @router.post("/download")
 def download(request: DownloadRequest):
-    if (
-        request.mode in ("video", "video_only")
-        and request.resolution is None
-    ):
-        raise HTTPException(
-            status_code=422,
-            detail="Resolution is required for video modes.",
-        )
-
-    # Each request get isolated directory
-    temp_dir = Path(tempfile.mkdtemp(prefix="video-downloader-"))
+    temp_dir: Path | None = None
 
     try:
+        media = detect_media(str(request.url))
+
+        if media["type"] == "image":
+            image_url = media.get("image_url", str(request.url))
+
+            source_path, temp_dir = download_image(image_url)
+            file_path = source_path
+
+            if request.remove_bg or request.enhance:
+                output_path = temp_dir / "processed.png"
+
+                file_path = process_image(
+                    source_path,
+                    output_path,
+                    remove_bg=request.remove_bg,
+                    enhance=request.enhance,
+                )
+
+            content_type = (
+                "image/png"
+                if request.remove_bg or request.enhance
+                else media.get("content_type", "image/jpeg")
+            )
+
+            extension = mimetypes.guess_extension(content_type) or ".img"
+
+            return CleanupFileResponse(
+                path=file_path,
+                filename=f"image{extension}",
+                media_type=content_type,
+                cleanup_dir=temp_dir,
+            )
+
+        if request.mode == "original":
+            raise HTTPException(
+                status_code=422,
+                detail="Select a video download mode.",
+            )
+
+        if (
+            request.mode in ("video", "video_only")
+            and request.resolution is None
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail="Resolution is required for video modes.",
+            )
+
+        temp_dir = Path(
+            tempfile.mkdtemp(prefix="video-downloader-")
+        )
+
         downloader = Downloader(
             str(request.url),
             output_dir=temp_dir,
@@ -69,13 +106,11 @@ def download(request: DownloadRequest):
                 file_path = downloader.download_video(
                     request.resolution
                 )
-
             case "video_only":
                 file_path = downloader.download_video(
                     request.resolution,
                     no_audio=True,
                 )
-
             case "audio_only":
                 file_path = downloader.download_audio()
 
@@ -91,9 +126,14 @@ def download(request: DownloadRequest):
             cleanup_dir=temp_dir,
         )
 
+    except HTTPException:
+        if temp_dir:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        raise
+
     except Exception as exc:
-        # If download failed before return response
-        shutil.rmtree(temp_dir, ignore_errors=True)
+        if temp_dir:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
         raise HTTPException(
             status_code=500,
