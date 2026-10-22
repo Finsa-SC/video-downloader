@@ -4,7 +4,7 @@
 
 /* ---------- API config (match your routes) ---------- */
 const CONFIG = {
-  baseUrl: location.port === "8000" ? "/api" : "http://localhost:8000/api",
+  baseUrl: "/api",
 
   // GET {baseUrl}/info?url=...
   //   video -> { type: "video", details: { title, thumbnail, duration, resolutions } }
