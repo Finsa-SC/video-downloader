@@ -1,7 +1,7 @@
-
 import mimetypes
 import shutil
 import tempfile
+import logging
 from pathlib import Path
 from typing import Literal
 
@@ -13,6 +13,8 @@ from app.services import Downloader
 from app.services.image_downloader import download_image
 from app.services.image_processor import process_image
 from app.services.media_detector import detect_media
+
+logger = logging.getLogger("uvicorn.error")
 
 router = APIRouter()
 
@@ -131,11 +133,18 @@ def download(request: DownloadRequest):
             shutil.rmtree(temp_dir, ignore_errors=True)
         raise
 
+
     except Exception as exc:
+
+        logger.exception("Download failed for %s", request.url)
+
         if temp_dir:
             shutil.rmtree(temp_dir, ignore_errors=True)
 
         raise HTTPException(
+
             status_code=500,
+
             detail="Download failed.",
+
         ) from exc

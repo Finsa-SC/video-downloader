@@ -8,7 +8,7 @@ dependencies = [
     "httpx>=0.28.1",
     "pillow>=13.0.0",
     "pydantic>=2.14.1",
-    "rembg>=2.0.86",
+    "python-dotenv>=1.2.4",
     "starlette>=1.9.0",
     "uvicorn>=0.54.0",
     "yt-dlp==2026.10.21",

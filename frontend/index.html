@@ -25,16 +25,16 @@
 
     <!-- URL input -->
     <section class="hero">
-      <h1>Paste a link, download the video</h1>
-      <p class="hero-sub">Enter a video link, check its info, then pick the format you want.</p>
+      <h1>Paste a link, download the video or image</h1>
+      <p class="hero-sub">Enter a video or image link, check what it is, then pick how you want to save it.</p>
 
       <div class="url-area">
         <img class="greeting" src="assets/greeting-acute.gif" alt="">
         <form id="url-form" class="url-form" novalidate>
-          <label class="sr-only" for="url-input">Video link</label>
+          <label class="sr-only" for="url-input">Media link</label>
           <input id="url-input" type="url" name="url" placeholder="https://..." autocomplete="off" required>
           <button id="check-btn" type="submit" class="btn btn-primary">
-            <span class="btn-label">Check video</span>
+            <span class="btn-label">Check link</span>
           </button>
         </form>
       </div>
@@ -44,56 +44,129 @@
     <!-- Result -->
     <div id="result" class="result" hidden>
 
-      <!-- Video info: thumbnail + title only -->
-      <article class="card video-info" aria-label="Video info">
-        <img id="video-thumb" class="video-thumb" alt="Video thumbnail">
-        <div class="video-meta">
-          <h2 id="video-title" class="video-title"></h2>
-          <p id="video-duration" class="video-duration"></p>
-        </div>
-      </article>
+      <!-- ===== Video ===== -->
+      <div id="video-view" class="result-view" hidden>
 
-      <!-- Download options, separate from the info above -->
-      <section class="card download-panel" aria-labelledby="download-heading">
-        <h2 id="download-heading">Download options</h2>
-
-        <fieldset class="field">
-          <legend>Choose format</legend>
-          <div class="mode-group">
-            <label class="mode-option">
-              <input type="radio" name="mode" value="video" checked>
-              <span class="mode-card">
-                <strong>Video</strong>
-                <small>Picture + audio</small>
-              </span>
-            </label>
-            <label class="mode-option">
-              <input type="radio" name="mode" value="video_only">
-              <span class="mode-card">
-                <strong>Video only</strong>
-                <small>No audio</small>
-              </span>
-            </label>
-            <label class="mode-option">
-              <input type="radio" name="mode" value="audio_only">
-              <span class="mode-card">
-                <strong>Audio only</strong>
-                <small>Sound only (MP3)</small>
-              </span>
-            </label>
+        <!-- Video info: thumbnail + title only -->
+        <article class="card video-info" aria-label="Video info">
+          <img id="video-thumb" class="video-thumb" alt="Video thumbnail">
+          <div class="video-meta">
+            <h2 id="video-title" class="video-title"></h2>
+            <p id="video-duration" class="video-duration"></p>
           </div>
-        </fieldset>
+        </article>
 
-        <fieldset id="resolution-field" class="field">
-          <legend>Choose quality</legend>
-          <div id="resolution-list" class="resolution-list"></div>
-        </fieldset>
+        <!-- Download options, separate from the info above -->
+        <section class="card download-panel" aria-labelledby="download-heading">
+          <h2 id="download-heading">Download options</h2>
 
-        <button id="download-btn" type="button" class="btn btn-download">
-          <span class="btn-label">Download</span>
-        </button>
-        <p id="download-status" class="message" role="status" hidden></p>
-      </section>
+          <fieldset class="field">
+            <legend>Choose format</legend>
+            <div class="mode-group">
+              <label class="mode-option">
+                <input type="radio" name="mode" value="video" checked>
+                <span class="mode-card">
+                  <strong>Video</strong>
+                  <small>Picture + audio</small>
+                </span>
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="mode" value="video_only">
+                <span class="mode-card">
+                  <strong>Video only</strong>
+                  <small>No audio</small>
+                </span>
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="mode" value="audio_only">
+                <span class="mode-card">
+                  <strong>Audio only</strong>
+                  <small>Sound only (MP3)</small>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset id="resolution-field" class="field">
+            <legend>Choose quality</legend>
+            <div id="resolution-list" class="resolution-list"></div>
+          </fieldset>
+
+          <button id="download-btn" type="button" class="btn btn-download">
+            <span class="btn-label">Download</span>
+          </button>
+          <p id="download-status" class="message" role="status" hidden></p>
+        </section>
+      </div>
+
+      <!-- ===== Image ===== -->
+      <div id="image-view" class="result-view" hidden>
+
+        <!-- Original image preview -->
+        <article class="card image-info" aria-label="Image preview">
+          <div class="image-stage">
+            <img id="image-preview" class="image-preview" alt="Image preview" referrerpolicy="no-referrer">
+          </div>
+          <div class="video-meta">
+            <h2 class="video-title">Image</h2>
+            <p id="image-type" class="video-duration"></p>
+          </div>
+        </article>
+
+        <!-- Options: edit first, or download the original right away -->
+        <section class="card download-panel" aria-labelledby="image-options-heading">
+          <h2 id="image-options-heading">Image options</h2>
+
+          <fieldset class="field">
+            <legend>Edit before downloading (optional)</legend>
+            <div class="mode-group two">
+              <label class="mode-option">
+                <input type="checkbox" name="edit" value="remove_bg">
+                <span class="mode-card">
+                  <strong>Remove background</strong>
+                  <small>Make the background transparent</small>
+                </span>
+              </label>
+              <label class="mode-option">
+                <input type="checkbox" name="edit" value="enhance">
+                <span class="mode-card">
+                  <strong>Enhance quality</strong>
+                  <small>Improve image quality</small>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="actions">
+            <button id="process-btn" type="button" class="btn btn-primary" disabled>
+              <span class="btn-label">Process image</span>
+            </button>
+            <button id="original-btn" type="button" class="btn btn-secondary">
+              <span class="btn-label">Download original</span>
+            </button>
+          </div>
+          <p id="image-status" class="message" role="status" hidden></p>
+        </section>
+
+        <!-- Processed result: shown after processing, download from here -->
+        <section id="processed-card" class="card download-panel" aria-labelledby="processed-heading" hidden>
+          <h2 id="processed-heading">Result</h2>
+          <div class="image-stage rounded">
+            <img id="processed-preview" class="image-preview" alt="Processed image preview">
+          </div>
+          <p id="processed-note" class="processed-note"></p>
+          <div class="actions">
+            <button id="processed-download" type="button" class="btn btn-download">
+              <span class="btn-label">Download</span>
+            </button>
+            <button id="processed-discard" type="button" class="btn btn-secondary">
+              <span class="btn-label">Discard result</span>
+            </button>
+          </div>
+          <p id="processed-status" class="message" role="status" hidden></p>
+        </section>
+      </div>
+
     </div>
 
   </main>
